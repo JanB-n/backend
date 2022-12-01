@@ -17,6 +17,9 @@ from rest_framework.decorators import api_view
 from .models import User
 from .serializers import UserSerializer
 
+
+
+
 @api_view(['GET'])
 def getUsers(request):
     users = User.objects.all()
