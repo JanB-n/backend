@@ -1,4 +1,7 @@
 from django.db import models
+import sys
+sys.path.append('../users')
+from users.models import User
 from django import forms
 
 # Create your models here.
@@ -6,12 +9,12 @@ from django import forms
 # class Team(models.Model):
 #     name = models.CharField(max_length=30)
 
-class User(models.Model):
-    # id_team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    email = models.EmailField(max_length=30)
-    password = models.CharField(max_length=30)
+# class User(models.Model):
+#     # id_team = models.ForeignKey(Team, on_delete=models.CASCADE)
+#     first_name = models.CharField(max_length=30)
+#     last_name = models.CharField(max_length=30)
+#     email = models.EmailField(max_length=30)
+#     password = models.CharField(max_length=30)
 
 class Compound(models.Model):
     # id_team = models.ForeignKey(Team, on_delete=models.CASCADE)
