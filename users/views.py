@@ -6,14 +6,14 @@ from .serializers import RegistrationSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
-from .models import User
+# from .models import User
 
 
-class addUser(APIView):
+class Register(APIView):
 
     def post(self, request, format='json'):
         serializer = RegistrationSerializer(data=request.data)
-        print(serializer)
+        print("serializer", serializer)
         if serializer.is_valid(raise_exception = True):
             user = serializer.save()
             if user:
@@ -24,15 +24,15 @@ class addUser(APIView):
 
 
 
-# class BlacklistTokenUpdateView(APIView):
-#     def post(self, request):
-#         try:
-#             refresh_token = request.data["refresh_token"]
-#             token = RefreshToken(refresh_token)
-#             token.blacklist()
-#             return Response(status=status.HTTP_205_RESET_CONTENT)
-#         except Exception as e:
-#             return Response(status=status.HTTP_400_BAD_REQUEST)
+class LogoutView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # @api_view(['POST'])

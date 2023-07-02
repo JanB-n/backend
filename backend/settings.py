@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'relacs',
     'users',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 ]
 
@@ -52,23 +54,13 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
-
-#CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = (
-  'http://localhost:3000',
-)
-
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-SECURE_SSL_REDIRECT = False
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -142,3 +134,63 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#CORS_ALLOW_ALL_ORIGINS = False
+CORS_ORIGIN_WHITELIST = (
+  'http://localhost:3000',
+)
+
+SIMPLE_JWT = {
+'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
+'REFRESH_TOKEN_LIFETIME': timedelta(days=20),
+'ROTATE_REFRESH_TOKENS': False,
+'BLACKLIST_AFTER_ROTATION': True,
+
+'ALGORITHM': 'HS256',
+'SIGNING_KEY': SECRET_KEY,
+'VERIFYING_KEY': None,
+'AUDIENCE': None,
+'ISSUER': None,
+
+'AUTH_HEADER_TYPES': ('Bearer',),
+'USER_ID_FIELD': 'id',
+'USER_ID_CLAIM': 'user_id',
+
+'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+'TOKEN_TYPE_CLAIM': 'token_type',
+
+'JTI_CLAIM': 'jti',
+'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+
+'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+'SLIDING_TOKEN_LIFETIME': timedelta(days=10),
+'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=20),
+}
+
+#CORS_ORIGIN_ALLOW_ALL = True
+#CORS_ALLOW_CREDENTIALS = True
+# CORS_ORIGIN_ALLOW_ALL = False
+# CORS_ORIGIN_WHITELIST = (
+#   'https://localhost:3000',
+# )
+
+
+# CORS_REPLACE_HTTPS_REFERER      = False
+# HOST_SCHEME                     = "http://"
+# SECURE_PROXY_SSL_HEADER         = None
+# SECURE_SSL_REDIRECT             = False
+# SESSION_COOKIE_SECURE           = False
+# CSRF_COOKIE_SECURE              = False
+# SECURE_HSTS_SECONDS             = None
+# SECURE_HSTS_INCLUDE_SUBDOMAINS  = False
+# SECURE_FRAME_DENY               = False
+
+# ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+
+# SECURE_CONTENT_TYPE_NOSNIFF = False
+# SECURE_BROWSER_XSS_FILTER = False
+# SESSION_COOKIE_SECURE = False
+# CSRF_COOKIE_SECURE = False
+# SECURE_SSL_REDIRECT = False
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
+# CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']

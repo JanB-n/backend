@@ -1,8 +1,11 @@
 from rest_framework import serializers
-from users.models import User
+#from users.models import User
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True, max_length=30)
     first_name = serializers.CharField(required=True, max_length=30)
     last_name = serializers.CharField(required=True, max_length=30)
     email = serializers.EmailField(required=True, max_length=30)
@@ -10,17 +13,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'password')
-        #extra_kwargs = {'password': {'write_only': True}}
+        fields = ("username", "first_name", "last_name", "email", "password")
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate(self, args):
-        #first_name = args.get('first_name', None)
-        #last_name = args.get('last_name', None)
-        email = args.get('email', None)
-        #password = args.get('password', None)
+        email = args.get("email", None)
+        username = args.get("username", None)
 
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({'email': ('Email already exists')})
+            raise serializers.ValidationError({"email": ("Email already exists")})
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({"username": ("Username already taken")})
 
         return super().validate(args)
 
@@ -31,5 +34,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
-
+        # validated_data['password'] = make_password(validated_data.get('password'))
+        # return super(RegistrationSerializer, self).create(validated_data)
     

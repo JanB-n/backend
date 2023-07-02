@@ -1,7 +1,10 @@
 from django.db import models
-import sys
-sys.path.append('../users')
-from users.models import User
+#from django.contrib.auth.models import User
+from django.conf import settings
+#import sys
+#sys.path.append('../users')
+#from users.models import User
+
 from django import forms
 
 # Create your models here.
@@ -18,14 +21,16 @@ from django import forms
 
 class Compound(models.Model):
     # id_team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    id_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     molar_mass = models.FloatField()
-    deltaT_actual = models.FloatField()
-    deltaH_actual = models.FloatField()
+    deltaT_actual = models.FloatField(null=True)
+    deltaH_actual = models.FloatField(null=True)
 
 class Experiment(models.Model):
     id_compound = models.ForeignKey(Compound, on_delete=models.CASCADE)
-    id_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    #id_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     file = models.BinaryField()
     mdate = models.DateField()
     probe_mass = models.FloatField()
