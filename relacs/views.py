@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core import serializers
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -7,6 +8,8 @@ from .serializers import CompoundSerializer
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.models import User
+from .models import Compound
+import json
 JWT_authenticator = JWTAuthentication()
 
 # Create your views here.
@@ -24,7 +27,7 @@ JWT_authenticator = JWTAuthentication()
 #         serializer.save()
 #     return Response(serializer.data)
 
-class Compound(APIView): 
+class CompoundView(APIView): 
     def post(self, request, format='json'):
         response = JWT_authenticator.authenticate(request)
         if response is not None:
@@ -45,4 +48,13 @@ class Compound(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
     def get(self, request):
-        pass
+        userVerified = JWT_authenticator.authenticate(request)
+        if userVerified is not None:
+            compounds = Compound.objects.filter(id_user=request.user.id)
+            compounds_serialized = serializers.serialize('json', compounds)
+            json.loads(compounds_serialized)
+            print(json.loads(compounds_serialized)[0])
+            return Response(json.loads(compounds_serialized), content_type="application/json")
+        else:
+            print("User not verified")
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
