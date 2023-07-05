@@ -45,6 +45,7 @@ class Measurement(models.Model):
     id_cluster = models.ForeignKey(Cluster, on_delete=models.CASCADE)
     T = models.FloatField()
     H= models.FloatField()
+    DF=models.JSONField()
     ChiPrime = models.FloatField()
     ChiBis = models.FloatField()
     Freq = models.FloatField()
