@@ -11,7 +11,6 @@ from . import views
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     #path('', views.getUsers),
-    path('compounds/', views.CompoundView.as_view()),
+    path('compound/', views.CompoundView.as_view()),
     #path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
-
