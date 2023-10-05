@@ -117,8 +117,8 @@ class CompoundView(APIView):
             #         return Response(json, status=status.HTTP_201_CREATED)
             # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            if True:
-            # try:
+            #if True:
+            try:
             
                 full_data = request.data['measurements']
                 probe_mass = float(request.data['probe_mass'])
@@ -188,7 +188,7 @@ class CompoundView(APIView):
 
                 with open('document.json', 'w') as f:
                     f.write(json.dumps(document))
-            try:        
+                    
                 return Response(status=status.HTTP_201_CREATED)
             except:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -221,14 +221,41 @@ class MeasurementsView(APIView):
         userVerified = JWT_authenticator.authenticate(request)
         id = request.GET.get('id')
         if userVerified is not None:
-            #try:
+            try:
                 compounds.update_one({"_id":  ObjectId(id)},{"$set":{"measurements": []}})
                 #document_serialized = json_util.dumps(document)
                 # print(document)
             
                 return Response(status=status.HTTP_204_NO_CONTENT)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class MeasurementView(APIView):
+    def get(self, request):
+        userVerified = JWT_authenticator.authenticate(request)
+        if userVerified is not None:
+            #try:
+                id = request.GET.get('c_id')
+                measurement_id = request.GET.get('m_id')
+                measurement_id = measurement_id.replace('__', ':').replace('%', ' ').replace('-', '.')
+                document = compounds.find_one({'_id': ObjectId(id)})
+                #document_serialized = json_util.dumps(document)
+                # print(document)
+                print(measurement_id)
+                if document is not None:
+                    measurement = helpers.getMeasurement(document, measurement_id)
+                    if measurement is not None:
+                        return Response(measurement, content_type="application/json")
+                    else:
+                        return Response(status=status.HTTP_404_NOT_FOUND)
+                else:
+                    return Response(status=status.HTTP_404_NOT_FOUND)
             #except:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+            
+        else:
+            print("User not verified")
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         
     
         

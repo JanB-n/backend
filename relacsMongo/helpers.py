@@ -93,4 +93,13 @@ def measurize(measurement, file_name, field_epsilon, tmp_epsilon):
     measurement["Hidden"] = pd.Series(np.zeros(length), index=measurement.index)
     
     return {'name': name, 'df': measurement, 'temp': temp, 'field': field}
-    return Measurement(name, df, temp, field, compound, collection)     
+    return Measurement(name, df, temp, field, compound, collection)  
+
+def getMeasurement(document, measurement_id):
+        for measurement in document['measurements']:
+             if measurement['name'] == measurement_id:
+                  return measurement
+             
+        return None
+             
+        
