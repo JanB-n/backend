@@ -167,14 +167,16 @@ class CompoundView(APIView):
 
                 # with open('document.json', 'w') as f:
                 #     f.write(json.dumps(measurements))
-                
+                merged_measurements = []
                 if 'measurements' in document != [] :
                     saved_measurements = document['measurements']
                     for new_measurement in measurements:
                         theSame = False
+                        i = 0
                         for document_measurement in document['measurements']:
                             if new_measurement['name'] == document_measurement['name']:
                                 theSame = True
+                                saved_measurements[i]['df'] = new_measurement['df'].to_json()                       
                         if theSame == False:
                             new_measurement['df'] = new_measurement['df'].to_json()
                             saved_measurements.append(new_measurement)
