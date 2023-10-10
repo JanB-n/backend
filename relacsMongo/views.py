@@ -107,17 +107,6 @@ class CompoundView(APIView):
     def post(self, request):
         response = JWT_authenticator.authenticate(request)
         if response is not None:
-            # print(request.data['measurements'])
-            # with open('df.txt', 'w') as f:
-            #     f.write(json.dumps(request.data['measurements']))
-            # if serializer.is_valid(raise_exception = True):
-            #     compound = serializer.save()
-            #     if compound:
-            #         json = serializer.data
-            #         return Response(json, status=status.HTTP_201_CREATED)
-            # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            #if True:
             try:
             
                 full_data = request.data['measurements']
@@ -136,37 +125,8 @@ class CompoundView(APIView):
                         print(measurement)
                         measurements.append(helpers.measurize(measurement, file_name, field_epsilon, tmp_epsilon))
                 
-                # for measurement in measurements:
-                #     measurement['df'] = measurement['df'].to_json()
-                #     print(measurement['df'])
-                
-                # for one_measurement in full_data:
-                #     one_measurement = {key: one_measurement[key] for key in ['Temperature (K)', 'Magnetic Field (Oe)', "AC X' (emu/Oe)", "AC X'' (emu/Oe)", "AC Frequency (Hz)"]}
-                #     data.setdefault((round(one_measurement['Temperature (K)'], 1), round(one_measurement['Magnetic Field (Oe)'], 1)), []).append(one_measurement)
-
-                # for key, value in data.items():
-                #     measurement_collection = {}
-                #     measurement_collection['temperature'] = key[0]
-                #     measurement_collection['field'] = key[1]
-                #     measurement_collection['name'] = f'T: {key[0]}K H: {key[1]}e'
-                #     measurement_collection['measurements_local'] = value
-                #     measurements.append(measurement_collection)
-
                 document_serialized = json_util.dumps(document)
                 document = json.loads(document_serialized)
-                # if 'measurements' in document:
-                #     #new_measurements = helpers.mergeLists(document['measurements'], measurements)
-                #     #compounds.update_one({"_id":  ObjectId(request.data['comp_id'])},{"$set":{"measurements": new_measurements}})
-                #     #compounds.update_one({"_id":  ObjectId(request.data['comp_id'])},{"$set":{"measurements": {}}})
-                #     compounds.update_one({"_id":  ObjectId(request.data['comp_id'])},{"$set":{"measurements": measurements}})
-                # else:
-                #     compounds.update_one({"_id":  ObjectId(request.data['comp_id'])},{"$set":{"measurements": measurements}})
-                # document = compounds.find_one({'_id': ObjectId(request.data['comp_id'])})
-                # document_serialized = json_util.dumps(document)
-                # document = json.loads(document_serialized)
-
-                # with open('document.json', 'w') as f:
-                #     f.write(json.dumps(measurements))
                 merged_measurements = []
                 if 'measurements' in document != [] :
                     saved_measurements = document['measurements']
@@ -176,7 +136,8 @@ class CompoundView(APIView):
                         for document_measurement in document['measurements']:
                             if new_measurement['name'] == document_measurement['name']:
                                 theSame = True
-                                saved_measurements[i]['df'] = new_measurement['df'].to_json()                       
+                                saved_measurements[i]['df'] = new_measurement['df'].to_json()    
+                            i += 1                   
                         if theSame == False:
                             new_measurement['df'] = new_measurement['df'].to_json()
                             saved_measurements.append(new_measurement)
@@ -257,6 +218,30 @@ class MeasurementView(APIView):
             
         else:
             print("User not verified")
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def put(self, request):
+        response = JWT_authenticator.authenticate(request)
+        if response is not None:
+            print(request.data['newDf'])
+            try:
+                comp_id = request.data['c_id']
+                measurement_id = request.data['m_id']
+                new_measurement = request.data['newDf']
+                document = compounds.find_one({"_id":  ObjectId(comp_id)})
+                measurements = document['measurements']
+                for measurement in measurements:
+                    if measurement['name'] == measurement_id:
+                        measurement['df'] = new_measurement
+
+                compounds.update_one({"_id":  ObjectId(comp_id)},{"$set":{"measurements": measurements}})
+                #compounds.insert_one(newdata)
+                return Response(status=status.HTTP_201_CREATED)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            print("no token is provided in the header or the header is missing")
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
     
