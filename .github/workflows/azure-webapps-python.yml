@@ -59,7 +59,6 @@ jobs:
       - name: Zip artifact for deployment
         run: | 
           zip ${{ env.AZURE_WEBAPP_PACKAGE_NAME }} ./* -r
-          zip env !venv/ -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
@@ -67,7 +66,7 @@ jobs:
           name: python-app
           path: |
             ${{ env.AZURE_WEBAPP_PACKAGE_NAME }}
-            env
+            !env/
 
   deploy:
     permissions:
