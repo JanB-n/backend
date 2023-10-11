@@ -26,6 +26,7 @@ class Compound(models.Model):
     molar_mass = models.FloatField()
     deltaT_actual = models.FloatField(null=True)
     deltaH_actual = models.FloatField(null=True)
+    # mesurements = models.JSONField(_(""), encoder=, decoder=)
 
 class Experiment(models.Model):
     id_compound = models.ForeignKey(Compound, on_delete=models.CASCADE)
