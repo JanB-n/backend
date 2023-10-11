@@ -34,8 +34,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    environment:
+      name: 'Development'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     steps:
+    
       - uses: actions/checkout@v3
 
       - name: Set up Python version
@@ -53,14 +56,18 @@ jobs:
         run: pip install -r requirements.txt
 
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+      - name: Zip artifact for deployment
+        run: | 
+          zip ${{ env.AZURE_WEBAPP_PACKAGE_NAME }} ./* -r
+          zip env !venv/ -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: python-app
           path: |
-            .
-            !venv/
+            ${{ env.AZURE_WEBAPP_PACKAGE_NAME }}
+            env
 
   deploy:
     permissions:
@@ -77,6 +84,9 @@ jobs:
         with:
           name: python-app
           path: .
+
+      - name: Unzip package
+        run: unzip python-app -d .
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
