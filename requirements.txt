@@ -7,4 +7,5 @@ pandas==2.1.1
 PyJWT==2.6.0
 pymongo==4.4.1
 gunicorn==21.2.0
+psycopg2-binary
 
