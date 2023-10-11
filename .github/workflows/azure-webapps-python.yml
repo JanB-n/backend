@@ -60,7 +60,7 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       - name: Zip artifact for deployment
         run: | 
-          zip -r ${{ env.AZURE_WEBAPP_NAME }} ./* -x ./venv 
+          zip -r release ./* -x ./venv 
       
       - name: lslslsls
         run: ls
@@ -70,7 +70,7 @@ jobs:
         with:
           name: python-app
           path: |
-            ${{ env.AZURE_WEBAPP_NAME }}
+            release.zip
 
   deploy:
     permissions:
