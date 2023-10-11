@@ -48,6 +48,7 @@ class CompoundsView(APIView):
             #request.data['id_user'] = user 
             newdata = request.data
             newdata['id_user'] = user.pk
+            
             newdata['measurements'] = []
             # if serializer.is_valid(raise_exception = True):
             #     compound = serializer.save()
@@ -55,10 +56,18 @@ class CompoundsView(APIView):
             #         json = serializer.data
             #         return Response(json, status=status.HTTP_201_CREATED)
             # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                compounds.insert_one(newdata)
-                return Response(status=status.HTTP_201_CREATED)
-            except:
+            print(newdata)
+            if 'name' in newdata and 'molar_mass' in newdata:
+                if newdata['name'] != "" and newdata['molar_mass'] != "":
+                    try:
+                        newdata['molar_mass'] = float(newdata['molar_mass'])
+                        compounds.insert_one(newdata)
+                        return Response(status=status.HTTP_201_CREATED)
+                    except:
+                        return Response(status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+            else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         
         else:
@@ -83,6 +92,17 @@ class CompoundsView(APIView):
         else:
             print("User not verified")
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def delete(self, request):
+        userVerified = JWT_authenticator.authenticate(request)
+        id = request.GET.get('id')
+        if userVerified is not None:
+            try: 
+                compounds.delete_one({"_id":  ObjectId(id)})
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        
         
 class CompoundView(APIView):
     def get(self, request):
@@ -243,6 +263,23 @@ class MeasurementView(APIView):
         else:
             print("no token is provided in the header or the header is missing")
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def delete(self, request):
+        userVerified = JWT_authenticator.authenticate(request)
+        id = request.GET.get('comp_id')
+        measurement_name = request.GET.get('measurement_name')
+        if userVerified is not None:
+            try:
+                document = compounds.find_one({"_id":  ObjectId(id)})
+                measurements = document['measurements']
+                measurements = [measurement for measurement in measurements if not (measurement['name'] == measurement_name)]
+                compounds.update_one({"_id":  ObjectId(id)},{"$set":{"measurements": measurements}})
+                #document_serialized = json_util.dumps(document)
+                # print(document)
+            
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         
     
         
