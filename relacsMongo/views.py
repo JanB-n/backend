@@ -142,7 +142,6 @@ class CompoundView(APIView):
                 measurements = []
                 for cluster in clusterized_data:
                     for measurement in cluster:
-                        print(measurement)
                         measurements.append(helpers.measurize(measurement, file_name, field_epsilon, tmp_epsilon))
                 
                 document_serialized = json_util.dumps(document)
@@ -168,9 +167,6 @@ class CompoundView(APIView):
                 document = compounds.find_one({'_id': ObjectId(request.data['comp_id'])})
                 document_serialized = json_util.dumps(document)
                 document = json.loads(document_serialized)
-
-                with open('document.json', 'w') as f:
-                    f.write(json.dumps(document))
                     
                 return Response(status=status.HTTP_201_CREATED)
             except:
@@ -217,7 +213,7 @@ class MeasurementView(APIView):
     def get(self, request):
         userVerified = JWT_authenticator.authenticate(request)
         if userVerified is not None:
-            #try:
+            try:
                 id = request.GET.get('c_id')
                 measurement_id = request.GET.get('m_id')
                 measurement_id = measurement_id.replace('__', ':').replace('%', ' ').replace('-', '.')
@@ -233,7 +229,7 @@ class MeasurementView(APIView):
                         return Response(status=status.HTTP_404_NOT_FOUND)
                 else:
                     return Response(status=status.HTTP_404_NOT_FOUND)
-            #except:
+            except:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             
         else:
