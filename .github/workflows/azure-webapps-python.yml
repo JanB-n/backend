@@ -84,8 +84,13 @@ jobs:
           name: python-app
           path: .
 
+      - name: show
+        run: |
+          ls -al
+          cd python-app
+
       - name: Unzip package
-        run: unzip python-app -d ..python-app
+        run: unzip python-app -d ./python-app
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
