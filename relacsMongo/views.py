@@ -58,7 +58,7 @@ class CompoundsView(APIView):
             # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             print(newdata)
             if 'name' in newdata and 'molar_mass' in newdata:
-                if newdata['name'] != "" and newdata['molar_mass'] != "":
+                if newdata['name'] != "" and newdata['molar_mass'] != "" and '+' not in newdata['name'] and '-' not in newdata['name']:
                     try:
                         newdata['molar_mass'] = float(newdata['molar_mass'])
                         compounds.insert_one(newdata)
