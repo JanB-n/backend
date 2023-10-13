@@ -216,7 +216,7 @@ class MeasurementView(APIView):
             try:
                 id = request.GET.get('c_id')
                 measurement_id = request.GET.get('m_id')
-                measurement_id = measurement_id.replace('__', ':').replace('%', ' ').replace('-', '.')
+                measurement_id = measurement_id.replace('__', ':').replace('%', ' ').replace('--', '.')
                 document = compounds.find_one({'_id': ObjectId(id)})
                 #document_serialized = json_util.dumps(document)
                 # print(document)
