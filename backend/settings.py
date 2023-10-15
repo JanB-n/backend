@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-xq6fcme+ii-mnrw$qs)k9zw7dnarx6p7gv2ocqn-8!04$!c-va
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['relacsbackend.azurewebsites.net', 'localhost']
+ALLOWED_HOSTS = ['relacsbackend.azurewebsites.net', 'localhost', '*']
 
 
 # Application definition
