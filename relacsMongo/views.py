@@ -43,7 +43,7 @@ class CompoundsView(APIView):
     def post(self, request, format='json'):
         response = JWT_authenticator.authenticate(request)
         if response is not None:
-            print(request.data)
+            
             user = User.objects.get(id=request.user.id)
             #request.data['id_user'] = user 
             newdata = request.data
@@ -56,7 +56,7 @@ class CompoundsView(APIView):
             #         json = serializer.data
             #         return Response(json, status=status.HTTP_201_CREATED)
             # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            print(newdata)
+            
             if 'name' in newdata and 'molar_mass' in newdata:
                 if newdata['name'] != "" and newdata['molar_mass'] != "" and '+' not in newdata['name'] and '-' not in newdata['name']:
                     try:
@@ -82,10 +82,7 @@ class CompoundsView(APIView):
                 for compound in compounds.find({"id_user": request.user.id}):
                     compound_list.append(compound)
                 compounds_serialized = json_util.dumps(compound_list)
-                # print(compounds_serialized)
-                #compounds_serialized = serializers.serialize('json', compounds)
-                #json.loads(compounds_serialized)
-                #print(json.loads(compounds_serialized)[0])
+                
                 return Response(json.loads(compounds_serialized), content_type="application/json")
             except:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -112,7 +109,7 @@ class CompoundView(APIView):
             try:
                 document = compounds.find_one({'_id': ObjectId(id)})
                 document_serialized = json_util.dumps(document)
-                # print(document)
+                
                 if document is not None:
                     return Response(json.loads(document_serialized), content_type="application/json")
                 else:
@@ -163,7 +160,6 @@ class CompoundView(APIView):
                     compounds.update_one({"_id":  ObjectId(request.data['comp_id'])},{"$set":{"measurements": saved_measurements}})
                 else:
                     compounds.update_one({"_id":  ObjectId(request.data['comp_id'])},{"$set":{"measurements": measurements}})
-                print('calculated')
                 document = compounds.find_one({'_id': ObjectId(request.data['comp_id'])})
                 document_serialized = json_util.dumps(document)
                 document = json.loads(document_serialized)
@@ -183,8 +179,7 @@ class MeasurementsView(APIView):
         if userVerified is not None:
             try:
                 measurements = list(compounds.find({'_id': ObjectId(id)}, {"measurements": 1, "_id": 0}))
-                #document_serialized = json_util.dumps(document)
-                # print(document)
+                
                 if measurements is not None:
                     return Response(measurements[0]['measurements'], content_type="application/json")
                 else:
@@ -202,8 +197,7 @@ class MeasurementsView(APIView):
         if userVerified is not None:
             try:
                 compounds.update_one({"_id":  ObjectId(id)},{"$set":{"measurements": []}})
-                #document_serialized = json_util.dumps(document)
-                # print(document)
+                
             
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except:
@@ -218,9 +212,8 @@ class MeasurementView(APIView):
                 measurement_id = request.GET.get('m_id')
                 measurement_id = measurement_id.replace('__', ':').replace('%', ' ').replace('--', '.')
                 document = compounds.find_one({'_id': ObjectId(id)})
-                #document_serialized = json_util.dumps(document)
-                # print(document)
-                print(measurement_id)
+                
+               
                 if document is not None:
                     measurement = helpers.getMeasurement(document, measurement_id)
                     if measurement is not None:
@@ -239,7 +232,7 @@ class MeasurementView(APIView):
     def put(self, request):
         response = JWT_authenticator.authenticate(request)
         if response is not None:
-            print(request.data['newDf'])
+            
             try:
                 comp_id = request.data['c_id']
                 measurement_id = request.data['m_id']
@@ -270,8 +263,7 @@ class MeasurementView(APIView):
                 measurements = document['measurements']
                 measurements = [measurement for measurement in measurements if not (measurement['name'] == measurement_name)]
                 compounds.update_one({"_id":  ObjectId(id)},{"$set":{"measurements": measurements}})
-                #document_serialized = json_util.dumps(document)
-                # print(document)
+                
             
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except:

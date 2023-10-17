@@ -13,7 +13,6 @@ class Register(APIView):
 
     def post(self, request, format='json'):
         serializer = RegistrationSerializer(data=request.data)
-        print("serializer", serializer)
         if serializer.is_valid(raise_exception = True):
             user = serializer.save()
             if user:
