@@ -16,5 +16,6 @@ urlpatterns = [
     path('measurements/', views.MeasurementsView.as_view()),
     path('measurement/', views.MeasurementView.as_view()),
     path('sharedcompounds/', views.SharedCompoundsView.as_view()),
+    path('currentuser/', views.CurrentUserView.as_view()),
     #path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

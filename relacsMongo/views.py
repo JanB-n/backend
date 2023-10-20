@@ -338,5 +338,16 @@ class SharedCompoundsView(APIView):
             print("no token is provided in the header or the header is missing")
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
+class CurrentUserView(APIView):
+    def get(self, request):
+        userVerified = JWT_authenticator.authenticate(request)
+        if userVerified is not None:
+            try:
+                return Response(json.loads({'current_user': userVerified[1]['user_id'], }), content_type="application/json")
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print("User not verified")
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
     
         
