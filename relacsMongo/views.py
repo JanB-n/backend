@@ -180,9 +180,8 @@ class MeasurementsView(APIView):
         if userVerified is not None:
             try:
                 measurements = list(compounds.find({'_id': ObjectId(id)}, {"measurements": 1, "_id": 0}))
-                
                 if measurements is not None:
-                    return Response(measurements[0]['measurements'], content_type="application/json")
+                    return Response({'measurements': measurements[0]['measurements'], 'currentUser': userVerified[1]['user_id']}, content_type="application/json")
                 else:
                     return Response(status=status.HTTP_404_NOT_FOUND)
             except:
