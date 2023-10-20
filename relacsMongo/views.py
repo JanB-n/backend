@@ -327,6 +327,7 @@ class SharedCompoundsView(APIView):
                 id = request.data['id']
                 document = compounds.find_one({"_id":  ObjectId(id)})
                 document['id_user'] = user_id
+                document['shared'] = 0
                 del document['_id']
                 compounds.insert_one(document)
                 return Response(status=status.HTTP_201_CREATED)
