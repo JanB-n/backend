@@ -152,7 +152,8 @@ class CompoundView(APIView):
                         for document_measurement in document['measurements']:
                             if new_measurement['name'] == document_measurement['name']:
                                 theSame = True
-                                saved_measurements[i]['df'] = new_measurement['df'].to_json()    
+                                saved_measurements[i]['df'] = new_measurement['df'].to_json() 
+                                saved_measurements[i]['edited'] = False   
                             i += 1                   
                         if theSame == False:
                             new_measurement['df'] = new_measurement['df'].to_json()
@@ -242,6 +243,7 @@ class MeasurementView(APIView):
                 for measurement in measurements:
                     if measurement['name'] == measurement_id:
                         measurement['df'] = new_measurement
+                        measurement['edited'] = True
 
                 compounds.update_one({"_id":  ObjectId(comp_id)},{"$set":{"measurements": measurements}})
                 #compounds.insert_one(newdata)
@@ -268,6 +270,72 @@ class MeasurementView(APIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+            
+class SharedCompoundsView(APIView):
+    def put(self, request):
+        response = JWT_authenticator.authenticate(request)
+        if response is not None: 
+            try:
+                id = request.data['id']
+                print(id, request.GET)
+                document = compounds.find_one({"_id":  ObjectId(id)})
+                isShared = 0
+                user = User.objects.get(id=document['id_user'])
+                username = user.username
+                if 'shared' in document:
+                    if document['shared'] == 1:
+                        isShared = 0
+                    elif document['shared'] == 0:
+                        isShared = 1
+                    else:
+                        return Response(status=status.HTTP_400_BAD_REQUEST)
+                    
+                else:
+                    isShared = 1
+
+                compounds.update_one({"_id":  ObjectId(id)},{"$set":{"shared": isShared, "owner_username": username}})
+                #compounds.insert_one(newdata)
+                return Response(status=status.HTTP_201_CREATED)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            print("no token is provided in the header or the header is missing")
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def get(self, request):
+        userVerified = JWT_authenticator.authenticate(request)
+        if userVerified is not None:
+            try:
+                compound_list = []
+                for compound in compounds.find({"shared": 1}):
+                    compound_list.append(compound)
+                compounds_serialized = json_util.dumps(compound_list)
+                
+                return Response(json.loads(compounds_serialized), content_type="application/json")
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print("User not verified")
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+    def post(self, request, format='json'):
+        response = JWT_authenticator.authenticate(request)
+        if response is not None:
+            try:
+                user_id = response[1]['user_id']
+                id = request.data['id']
+                document = compounds.find_one({"_id":  ObjectId(id)})
+                document['id_user'] = user_id
+                del document['_id']
+                compounds.insert_one(document)
+                return Response(status=status.HTTP_201_CREATED)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            print("no token is provided in the header or the header is missing")
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         
     
         
