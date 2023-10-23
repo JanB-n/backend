@@ -132,6 +132,10 @@ class CompoundView(APIView):
                 tmp_epsilon = 0.05
                 file_name =  request.data['file_name']
                 document = compounds.find_one({'_id': ObjectId(request.data['comp_id'])})
+                ###
+                if document['id_user'] != response[1]['user_id']:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                ###
                 molar_mass = float(document['molar_mass'])
                 data = helpers.get_data_from_csv(full_data)
                 data = helpers.calculate_additional_measurements(data, molar_mass, probe_mass)
@@ -179,9 +183,14 @@ class MeasurementsView(APIView):
         id = request.GET.get('id')
         if userVerified is not None:
             try:
-                measurements = list(compounds.find({'_id': ObjectId(id)}, {"measurements": 1, "_id": 0}))
-                if measurements is not None:
-                    return Response({'measurements': measurements[0]['measurements'], 'currentUser': userVerified[1]['user_id']}, content_type="application/json")
+                #measurements = list(compounds.find({'_id': ObjectId(id)}, {"measurements": 1, "_id": 0}))
+                document = compounds.find_one({'_id': ObjectId(id)})
+                if document is not None:
+                    if document['id_user'] == userVerified[1]['user_id']:
+                        return Response({'measurements': document['measurements'], 'currentUser': userVerified[1]['user_id'], 'isUserAdmin': True}, content_type="application/json")
+                    else:
+                        return Response({'measurements': document['measurements'], 'currentUser': userVerified[1]['user_id'], 'isUserAdmin': False}, content_type="application/json")
+
                 else:
                     return Response(status=status.HTTP_404_NOT_FOUND)
             except:
@@ -196,6 +205,10 @@ class MeasurementsView(APIView):
         id = request.GET.get('id')
         if userVerified is not None:
             try:
+                print("aaa")
+                document = compounds.find_one({"_id": ObjectId(id)})
+                print(document['id_user'] != userVerified[1]['user_id'])
+                
                 compounds.update_one({"_id":  ObjectId(id)},{"$set":{"measurements": []}})
                 
             
@@ -217,7 +230,11 @@ class MeasurementView(APIView):
                 if document is not None:
                     measurement = helpers.getMeasurement(document, measurement_id)
                     if measurement is not None:
-                        return Response(measurement, content_type="application/json")
+                        print(document['id_user'] == userVerified[1]['user_id'])
+                        if document['id_user'] == userVerified[1]['user_id']:
+                            return Response({'measurement': measurement, 'isUserAdmin': True}, content_type="application/json")
+                        else:
+                            return Response({'measurement': measurement, 'isUserAdmin': False}, content_type="application/json")
                     else:
                         return Response(status=status.HTTP_404_NOT_FOUND)
                 else:
@@ -238,6 +255,10 @@ class MeasurementView(APIView):
                 measurement_id = request.data['m_id']
                 new_measurement = request.data['newDf']
                 document = compounds.find_one({"_id":  ObjectId(comp_id)})
+                ###
+                if document['id_user'] != response[1]['user_id']:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                ###
                 measurements = document['measurements']
                 for measurement in measurements:
                     if measurement['name'] == measurement_id:
@@ -261,6 +282,9 @@ class MeasurementView(APIView):
         if userVerified is not None:
             try:
                 document = compounds.find_one({"_id":  ObjectId(id)})
+                if document['id_user'] != userVerified[1]['user_id']:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                print("msname", measurement_name, id)
                 measurements = document['measurements']
                 measurements = [measurement for measurement in measurements if not (measurement['name'] == measurement_name)]
                 compounds.update_one({"_id":  ObjectId(id)},{"$set":{"measurements": measurements}})
